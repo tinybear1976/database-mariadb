@@ -133,3 +133,24 @@ func Connect(serverTag string) (*sqlx.DB, error)
 |          | error    | 返回操作结果的错误信息，如果正确则返回nil |
 
 
+## SetConnMaxLifetime
+
+获得一个数据库连接。
+
+```go
+func SetConnMaxLifetime(serverTag string, d time.Duration) error
+```
+
+入口参数：
+
+| 参数名    | 类型   | 描述                  |
+| --------- | ------ | --------------------- |
+| serverTag | string | Mariadb数据库连接标识 |
+| d | time.Duration | 连接超时时间 |
+
+返回值：
+
+| 返回变量 | 类型     | 描述                                      |
+| -------- | -------- | ----------------------------------------- |
+|          | error    | 返回操作结果的错误信息，如果正确则返回nil |
+

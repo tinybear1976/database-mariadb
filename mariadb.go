@@ -41,3 +41,12 @@ func Destroy() {
 		delete(serverTags, k)
 	}
 }
+
+func SetConnMaxLifetime(serverTag string, d time.Duration) error{
+	sqldb, ok := serverTags[serverTag]
+	if !ok {
+		return errors.New(fmt.Sprintf("mariadb[%s] not existing", serverTag))
+	}
+	sqldb.SetConnMaxLifetime(d)
+	return nil
+}

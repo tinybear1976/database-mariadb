@@ -1,8 +1,8 @@
 package mariadb
 
 import (
-	"errors"
 	"fmt"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -28,10 +28,27 @@ func New(serverTag, ip, port, username, password, dbname string) error {
 	return nil
 }
 
+// 该方法端口号为int，主要配合新的conf文件格式
+func New2(serverTag, ip string, port int, username, password, dbname string) error {
+	connstr := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8",
+		username, password, ip, port, dbname)
+	sqldb, err := sqlx.Open("mysql", connstr)
+	//sqldb.SetConnMaxLifetime(time.Second * 5)
+	if err != nil {
+		return err
+	}
+	err = sqldb.Ping()
+	if err != nil {
+		return err
+	}
+	serverTags[serverTag] = sqldb
+	return nil
+}
+
 func Connect(serverTag string) (*sqlx.DB, error) {
 	sqldb, ok := serverTags[serverTag]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("mariadb[%s] not existing", serverTag))
+		return nil, fmt.Errorf("mariadb[%s] not existing", serverTag)
 	}
 	return sqldb, nil
 }
@@ -42,10 +59,10 @@ func Destroy() {
 	}
 }
 
-func SetConnMaxLifetime(serverTag string, d time.Duration) error{
+func SetConnMaxLifetime(serverTag string, d time.Duration) error {
 	sqldb, ok := serverTags[serverTag]
 	if !ok {
-		return errors.New(fmt.Sprintf("mariadb[%s] not existing", serverTag))
+		return fmt.Errorf("mariadb[%s] not existing", serverTag)
 	}
 	sqldb.SetConnMaxLifetime(d)
 	return nil
